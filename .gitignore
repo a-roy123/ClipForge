@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+node_modules/
+dist/
+*.egg-info/
+.DS_Store
+/tmp/
+clipforge-dev_accessKeys.csv

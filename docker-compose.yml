@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: clipforge
+      POSTGRES_USER: clipforge
+      POSTGRES_PASSWORD: clipforge
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clipforge_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clipforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - clipforge_net
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - clipforge_net
+    volumes:
+      - ./backend:/app
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - clipforge_net
+    volumes:
+      - ./backend:/app
+      - tmp_processing:/tmp
+    # Mounting /tmp as a named Docker volume prevents orphaned temp files
+    # from clogging the container layer if a task is aborted mid-processing.
+    # libx264 rendering can temporarily double disk usage during clip cutting.
+
+  # =========================================================================
+  # INTERIM ROUTING GATEWAY: Used strictly during local Phases 1-4.
+  # This entire block will be DELETED and replaced in Phase 5
+  # by a unified multi-stage frontend/proxy container.
+  # =========================================================================
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+    networks:
+      - clipforge_net
+
+volumes:
+  postgres_data:
+  redis_data:
+  tmp_processing:
+
+networks:
+  clipforge_net:
+    driver: bridge

@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    postgresql-client \
+    libsndfile1 \
+    awscli \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Runtime startup script:
+# 1. Sweep orphaned /tmp/job_* scratch dirs from previous container crashes
+# 2. Pull model weights from S3 if not already present (runtime pull avoids
+#    baking AWS credentials into the image layer via build args, which would
+#    expose them to anyone running `docker history` on the image)
+# 3. Start the Celery worker
+CMD ["/bin/sh", "-c", "\
+    rm -rf /tmp/job_* 2>/dev/null; \
+    if [ ! -f app/ml/models/highlight_cnn.pt ]; then \
+        echo 'Pulling model weights from S3...'; \
+        aws s3 cp s3://${S3_BUCKET_NAME}/models/highlight_cnn.pt app/ml/models/highlight_cnn.pt; \
+    fi; \
+    celery -A app.worker.celery_app worker --loglevel=info --concurrency=1 -O fair"]

@@ -9,3 +9,4 @@ dist/
 .DS_Store
 /tmp/
 clipforge-dev_accessKeys.csv
+data/

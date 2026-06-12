@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-
+from app.api.upload import router as upload_router
 from app.api.auth import router as auth_router
+from app.api.jobs import router as jobs_router
+from app.api.highlights import router as highlights_router
+from app.api.ws import router as ws_router
 from app.core.config import get_settings
 from app.core.ratelimit import limiter
 
@@ -26,6 +29,10 @@ app.add_middleware(
 
 # 4. Include Application Routers
 app.include_router(auth_router, prefix="/api/auth")
+app.include_router(upload_router, prefix="/api/upload")
+app.include_router(jobs_router, prefix="/api/jobs")
+app.include_router(highlights_router, prefix="/api/highlights")
+app.include_router(ws_router)
 
 
 # 5. Core Operational Health Endpoint

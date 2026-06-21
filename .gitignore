@@ -10,3 +10,4 @@ dist/
 /tmp/
 clipforge-dev_accessKeys.csv
 data/
+backend/app/ml/models/*.pt

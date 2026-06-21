@@ -1,0 +1,1 @@
+val_acc=0.889 hard_neg_block_rate=61.00% s3=s3://clipforge-videos-980946938623-us-east-2-an/models/highlight_cnn.pt

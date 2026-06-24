@@ -57,7 +57,7 @@ async def test_presign_file_too_large(client: AsyncClient):
     headers = await _register_user(client, "too_large@example.com", "too_large")
     payload = {
         "filename": "massive_vod.mp4",
-        "file_size_bytes": 2147483648 + 1,  # 2GB + 1 byte
+        "file_size_bytes": 6442450944,  # 6GB
         "content_type": "video/mp4"
     }
     response = await client.post("/api/upload/presign", json=payload, headers=headers)

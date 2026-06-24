@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset & smoothing ─────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --bg:        #090909;
+  --surface:   #111111;
+  --surface-1: #181818;
+  --border:    #1e1e1e;
+  --border-1:  #2a2a2a;
+  --border-2:  #383838;
+  --text-1:    #e8e8e8;
+  --text-2:    #808080;
+  --text-3:    #3f3f3f;
+  --ring:      rgba(232, 232, 232, 0.2);
+}
+
+/* ── HTML / Body ───────────────────────────────────────── */
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-1);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Typography ────────────────────────────────────────── */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* ── Focus ─────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Touch ─────────────────────────────────────────────── */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 4px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: var(--border-1); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--border-2); }
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+/* ── Reduced motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Component layer ───────────────────────────────────── */
+@layer components {
+
+  /*
+   * .glass — sticky nav only.
+   * Blur is semantic here: separates fixed chrome from scrolling content.
+   */
+  .glass {
+    background: rgba(9, 9, 9, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /*
+   * .glass-card — solid surface panel. No blur.
+   * Blur on cards is decoration, not structure.
+   */
+  .glass-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  /* Interactive surface — hover lifts surface one step */
+  .glass-card-interactive {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition-property: background-color, border-color;
+    transition-duration: 130ms;
+    transition-timing-function: ease;
+  }
+  .glass-card-interactive:hover {
+    background-color: var(--surface-1);
+    border-color: var(--border-1);
+  }
+  .glass-card-interactive:active {
+    background-color: var(--surface);
+  }
+
+  /*
+   * .btn-forge — primary CTA.
+   * Flat white-on-dark. No gradient, no glow.
+   * High contrast ratio (>14:1 on the canvas). Works perfectly in grayscale.
+   */
+  .btn-forge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 34px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--bg);
+    background-color: var(--text-1);
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 34px;
+    transition-property: background-color, opacity;
+    transition-duration: 120ms;
+    transition-timing-function: ease;
+  }
+  .btn-forge:hover:not(:disabled) {
+    background-color: #ffffff;
+  }
+  .btn-forge:active:not(:disabled) {
+    background-color: #d0d0d0;
+  }
+  .btn-forge:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+
+  /* Secondary / ghost button */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 10px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-2);
+    background-color: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition-property: color, background-color, border-color;
+    transition-duration: 120ms;
+    transition-timing-function: ease;
+  }
+  .btn-ghost:hover {
+    color: var(--text-1);
+    background-color: var(--surface-1);
+    border-color: var(--border);
+  }
+  .btn-ghost:active {
+    background-color: var(--surface);
+  }
+
+  /* Text input */
+  .input-forge {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-1);
+    background-color: var(--surface);
+    border: 1px solid var(--border-1);
+    outline: none;
+    transition-property: border-color, background-color;
+    transition-duration: 120ms;
+    transition-timing-function: ease;
+  }
+  .input-forge::placeholder {
+    color: var(--text-3);
+  }
+  .input-forge:hover {
+    border-color: var(--border-2);
+  }
+  .input-forge:focus {
+    border-color: var(--border-2);
+    background-color: var(--surface-1);
+  }
+
+  /* Status badge pill */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0;
+  }
+
+  /* Status dot indicator */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+  .status-dot-processing {
+    animation: statusPulse 1.6s ease-in-out infinite;
+  }
+
+  /* Progress track — flat monochrome, no shimmer */
+  .progress-track {
+    width: 100%;
+    height: 2px;
+    background-color: var(--border-1);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: var(--text-1);
+    transition-property: width;
+    transition-duration: 400ms;
+    transition-timing-function: ease;
+  }
+
+  /* Skeleton shimmer — neutral, no color */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface)    25%,
+      var(--surface-1)  50%,
+      var(--surface)    75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+/* ── Spinner — monochrome ──────────────────────────────── */
+.spinner {
+  border-radius: 50%;
+  border: 1.5px solid var(--border-1);
+  border-top-color: var(--text-2);
+  animation: spin 0.65s linear infinite;
+}
+
+/* ── Numeric figures ───────────────────────────────────── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Modal scroll lock ─────────────────────────────────── */
+.modal-content {
+  overscroll-behavior: contain;
+}

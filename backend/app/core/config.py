@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     celery_result_backend: str
     debug: bool = False
     allowed_origins: str = "http://localhost"
-    max_upload_size_bytes: int = 2147483648
+    max_upload_size_bytes: int = 5368709120
     max_highlights: int = 5
     default_highlights: int = 3
     default_clip_duration_seconds: int = 30

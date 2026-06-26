@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Automatically normalizes the /api trailing suffix alignment with Docker/Nginx proxies
-const rawBaseURL = import.meta.env.VITE_API_URL || 'http://localhost';
+const rawBaseURL = 'http://3.17.29.156:8000';
 const baseURL = rawBaseURL.endsWith('/api') ? rawBaseURL : `${rawBaseURL}/api`;
 
 const api = axios.create({

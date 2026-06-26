@@ -40,6 +40,7 @@ services:
       - clipforge_net
     volumes:
       - ./backend:/app
+    command: tail -f /dev/null
 
   worker:
     build:

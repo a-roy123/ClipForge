@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useJobSocket } from '../hooks/useJobSocket';
 import api from '../services/api';
@@ -12,6 +12,7 @@ export default function JobDetail() {
 
   const { jobData, isConnected } = useJobSocket(jobId);
   const [fallback, setFallback] = useState(null);
+  const [highlightsLoading, setHighlightsLoading] = useState(true);
 
   const fetchJobREST = async () => {
     try {
@@ -19,16 +20,27 @@ export default function JobDetail() {
       setFallback(response.data);
     } catch (err) {
       console.error('REST database synchronization failed:', err);
+    } finally {
+      setHighlightsLoading(false);
     }
   };
 
+  // Always fetch REST on mount — WebSocket carries live status/progress but not highlights
   useEffect(() => {
-    if (!jobData) {
-      fetchJobREST();
-    }
-  }, [jobId, jobData]);
+    fetchJobREST();
+  }, [jobId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const job = jobData || fallback;
+  // Merge: WebSocket overlays live fields; REST is authoritative for highlights
+  const job = useMemo(() => {
+    if (!jobData && !fallback) return null;
+    const base = fallback ?? {};
+    const ws = jobData ?? {};
+    return {
+      ...base,
+      ...ws,
+      highlights: ws.highlights?.length ? ws.highlights : base.highlights,
+    };
+  }, [jobData, fallback]);
 
   if (!job) {
     return (
@@ -122,7 +134,11 @@ export default function JobDetail() {
       {/* Complete */}
       {job.status === 'COMPLETE' && (
         <div style={{ animation: 'fadeUp 0.45s ease-out forwards' }}>
-          {job.highlights && job.highlights.length > 0 ? (
+          {highlightsLoading ? (
+            <div className="flex items-center justify-center py-16" aria-label="Loading highlights">
+              <div aria-hidden="true" className="spinner w-6 h-6" />
+            </div>
+          ) : job.highlights && job.highlights.length > 0 ? (
             <VideoPlayer highlights={job.highlights} />
           ) : (
             <div className="glass-card p-14 text-center">
